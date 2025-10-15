@@ -7764,8 +7764,8 @@
                         }
                     }
                     
-                    const gross = closed ? ((t.exit_price - t.entry_price) * (t.quantity || 0)) : 0;
-                    const net = gross - charges;
+                    const net = closed ? calculateNetPnl(t) : 0;
+                    const gross = net + charges; // Calculate gross from net + charges
                     
                     // Calculate net profit/loss percentage
                     const netProfitPercentage = closed && t.entry_price ? ((net / (t.entry_price * (t.quantity || 0))) * 100) : 0;
@@ -8792,10 +8792,10 @@
                     ledger: ledger.length
                 });
                 
-                // Calculate daily P&L from trades (with performance caching)
-                const byDay = performanceCache.getCachedChartData('dailyPnL', trades, () => {
+                // Calculate daily P&L from closed trades (with performance caching)
+                const byDay = performanceCache.getCachedChartData('dailyPnL', closedTrades, () => {
                     const result = {};
-                    trades.forEach(t => {
+                    closedTrades.forEach(t => {
                         if (!(t.exit_date && t.exit_price)) return;
                         
                         // Validate the exit_date before converting
@@ -8806,7 +8806,9 @@
                         
                         const d = exitDate.toISOString().slice(0,10);
                         const pnl = calculateNetPnl(t);
-                        result[d] = (result[d] || 0) + pnl;
+                        if (isFinite(pnl)) {
+                            result[d] = (result[d] || 0) + pnl;
+                        }
                     });
                     return result;
                 });
@@ -8923,13 +8925,23 @@
                         oldChart.destroy();
                     }
                     
-                    // Calculate daily P&L from trades
+                    // Calculate daily P&L from trades with date normalization
                     const dailyPnlData = {};
                     closedTrades.forEach(trade => {
                         if (trade.exit_date) {
-                            const date = trade.exit_date;
-                            const pnl = calculateNetPnl(trade);
-                            dailyPnlData[date] = (dailyPnlData[date] || 0) + pnl;
+                            try {
+                                // Normalize date to YYYY-MM-DD format for consistent grouping
+                                const exitDate = new Date(trade.exit_date);
+                                if (!isNaN(exitDate.getTime())) {
+                                    const normalizedDate = exitDate.toISOString().split('T')[0];
+                                    const pnl = calculateNetPnl(trade);
+                                    if (isFinite(pnl)) {
+                                        dailyPnlData[normalizedDate] = (dailyPnlData[normalizedDate] || 0) + pnl;
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn('Daily P&L: Invalid exit_date for trade:', trade.id, trade.exit_date);
+                            }
                         }
                     });
                     
@@ -13047,30 +13059,55 @@
                 const dateRange = getPeriodDateRange(period);
                 const allTrades = appState.trades || [];
                 
-                // For All Time: use all data
-                // For Week/Month: filter data within period
-                let filteredTrades = allTrades;
+                // For All Time: use all closed trades
+                // For Week/Month: filter closed trades within period
+                let filteredTrades = allTrades.filter(trade => {
+                    // Only include closed trades (consistent with original chart)
+                    return trade.exit_date && trade.exit_price && (!trade.exit_quantity || trade.exit_quantity >= trade.quantity);
+                });
                 
                 if (dateRange.start && dateRange.end) {
-                    // Filter trades within period
-                    filteredTrades = allTrades.filter(trade => {
+                    // Filter closed trades within period
+                    filteredTrades = filteredTrades.filter(trade => {
                         const tradeDate = new Date(trade.exit_date);
                         return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
                     });
                 }
                 
-                // Get all unique dates from filtered trades
+                // Get all unique dates from filtered trades with date normalization
                 const allDates = new Set();
                 
                 if (period === 'all') {
-                    // All Time: Use ALL data for complete historical view
-                    allTrades.forEach(trade => {
-                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    // All Time: Use ALL closed trades for complete historical view
+                    allTrades.filter(trade => {
+                        return trade.exit_date && trade.exit_price && (!trade.exit_quantity || trade.exit_quantity >= trade.quantity);
+                    }).forEach(trade => {
+                        if (trade.exit_date) {
+                            try {
+                                const exitDate = new Date(trade.exit_date);
+                                if (!isNaN(exitDate.getTime())) {
+                                    const normalizedDate = exitDate.toISOString().split('T')[0];
+                                    allDates.add(normalizedDate);
+                                }
+                            } catch (e) {
+                                console.warn('Daily P&L: Invalid exit_date for date collection:', trade.id, trade.exit_date);
+                            }
+                        }
                     });
                 } else {
                     // Week/Month: Use filtered data for period-specific view
                     filteredTrades.forEach(trade => {
-                        if (trade.exit_date) allDates.add(trade.exit_date);
+                        if (trade.exit_date) {
+                            try {
+                                const exitDate = new Date(trade.exit_date);
+                                if (!isNaN(exitDate.getTime())) {
+                                    const normalizedDate = exitDate.toISOString().split('T')[0];
+                                    allDates.add(normalizedDate);
+                                }
+                            } catch (e) {
+                                console.warn('Daily P&L: Invalid exit_date for date collection:', trade.id, trade.exit_date);
+                            }
+                        }
                     });
                 }
                 
@@ -13084,16 +13121,26 @@
                     return;
                 }
                 
-                // Calculate daily P&L data
+                // Calculate daily P&L data with date normalization
                 const chartLabels = sortedDates.map(date => formatDateDDMMYYYY(date));
                 const dailyPnlData = {};
                 
-                // Calculate daily P&L from filtered trades
+                // Calculate daily P&L from filtered trades with consistent logic
                 filteredTrades.forEach(trade => {
                     if (trade.exit_date) {
-                        const date = trade.exit_date;
-                        const pnl = calculateNetPnl(trade);
-                        dailyPnlData[date] = (dailyPnlData[date] || 0) + pnl;
+                        try {
+                            // Normalize date to YYYY-MM-DD format for consistent grouping
+                            const exitDate = new Date(trade.exit_date);
+                            if (!isNaN(exitDate.getTime())) {
+                                const normalizedDate = exitDate.toISOString().split('T')[0];
+                                const pnl = calculateNetPnl(trade);
+                                if (isFinite(pnl)) {
+                                    dailyPnlData[normalizedDate] = (dailyPnlData[normalizedDate] || 0) + pnl;
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Daily P&L Filter: Invalid exit_date for trade:', trade.id, trade.exit_date);
+                        }
                     }
                 });
                 
