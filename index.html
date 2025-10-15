@@ -9877,9 +9877,10 @@
                                     return sum + (isNaN(pnl) ? 0 : pnl);
                                 }, 0);
                             
-                            // Account Value = cumulative_deposits - withdrawalsToDate + cumulative_P&L
-                            // This starts from 0 and builds up with actual transactions
-                            const accountValue = depositsToDate - withdrawalsToDate + pnlToDate;
+                            // Account Value = starting balance + deposits - withdrawals + P&L
+                            // This shows the complete account value progression
+                            const startingBalance = parseFloat(appState.startingBalance) || 0;
+                            const accountValue = startingBalance + depositsToDate - withdrawalsToDate + pnlToDate;
                             
                             // Ensure no NaN values
                             accountValueData.push(isNaN(accountValue) ? 0 : accountValue);
@@ -12718,7 +12719,7 @@
                         let depositsToDate = 0;
                         ledger.forEach(entry => {
                             const entryDate = new Date(entry.date).getTime();
-                            if (entryDate <= dateTime && entry.type === 'deposit') {
+                            if (entryDate <= dateTime && entry.type === 'Deposit') {
                                 depositsToDate += parseFloat(entry.amount) || 0;
                             }
                         });
@@ -12727,7 +12728,7 @@
                         let withdrawalsToDate = 0;
                         ledger.forEach(entry => {
                             const entryDate = new Date(entry.date).getTime();
-                            if (entryDate <= dateTime && entry.type === 'withdrawal') {
+                            if (entryDate <= dateTime && entry.type === 'Withdrawal') {
                                 withdrawalsToDate += parseFloat(entry.amount) || 0;
                             }
                         });
@@ -12746,7 +12747,7 @@
                     // Add deposits before period
                     ledger.forEach(entry => {
                         const entryDate = new Date(entry.date).getTime();
-                        if (entryDate < periodStartTime && entry.type === 'deposit') {
+                        if (entryDate < periodStartTime && entry.type === 'Deposit') {
                             startingBalanceForPeriod += parseFloat(entry.amount) || 0;
                         }
                     });
@@ -12754,7 +12755,7 @@
                     // Subtract withdrawals before period
                     ledger.forEach(entry => {
                         const entryDate = new Date(entry.date).getTime();
-                        if (entryDate < periodStartTime && entry.type === 'withdrawal') {
+                        if (entryDate < periodStartTime && entry.type === 'Withdrawal') {
                             startingBalanceForPeriod -= parseFloat(entry.amount) || 0;
                         }
                     });
@@ -12784,7 +12785,7 @@
                         let depositsInPeriod = 0;
                         filteredLedger.forEach(entry => {
                             const entryDate = new Date(entry.date).getTime();
-                            if (entryDate <= dateTime && entry.type === 'deposit') {
+                            if (entryDate <= dateTime && entry.type === 'Deposit') {
                                 depositsInPeriod += parseFloat(entry.amount) || 0;
                             }
                         });
@@ -12793,7 +12794,7 @@
                         let withdrawalsInPeriod = 0;
                         filteredLedger.forEach(entry => {
                             const entryDate = new Date(entry.date).getTime();
-                            if (entryDate <= dateTime && entry.type === 'withdrawal') {
+                            if (entryDate <= dateTime && entry.type === 'Withdrawal') {
                                 withdrawalsInPeriod += parseFloat(entry.amount) || 0;
                             }
                         });
