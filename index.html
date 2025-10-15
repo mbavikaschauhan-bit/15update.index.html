@@ -14782,13 +14782,12 @@
                         // Store this individual partial exit
                         const partialExitRecord = {
                             id: generateUUID(),
-                            tradeId: currentExitTrade.id,
-                            date: exitData.exit_date,
-                            price: exitPrice,
-                            quantity: exitQuantity,
+                            trade_id: currentExitTrade.id,
+                            exit_date: exitData.exit_date,
+                            exit_price: exitPrice,
+                            exit_quantity: exitQuantity,
                             brokerage: brokerage,
-                            charges: charges,
-                            timestamp: new Date().toISOString()
+                            charges: charges
                         };
                         
                         // Save partial exit to Supabase
