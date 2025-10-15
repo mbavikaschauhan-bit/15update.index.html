@@ -1162,6 +1162,52 @@
                 font-size: 0.75rem;
             }
         }
+
+        /* Monthly Performance Chart Filter Buttons */
+        #monthly-performance-filter-month:hover,
+        #monthly-performance-filter-all:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        #monthly-performance-filter-month.active,
+        #monthly-performance-filter-all.active {
+            background-color: var(--accent-color, #3b82f6) !important;
+            color: white !important;
+            border-color: var(--accent-color, #3b82f6) !important;
+        }
+
+        /* Mobile responsiveness for Monthly Performance filter buttons */
+        @media (max-width: 640px) {
+            #monthly-performance-filter-month,
+            #monthly-performance-filter-all {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Monthly Commission/Charges Chart Filter Buttons */
+        #monthly-commission-filter-month:hover,
+        #monthly-commission-filter-all:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        #monthly-commission-filter-month.active,
+        #monthly-commission-filter-all.active {
+            background-color: var(--accent-color, #3b82f6) !important;
+            color: white !important;
+            border-color: var(--accent-color, #3b82f6) !important;
+        }
+
+        /* Mobile responsiveness for Monthly Commission/Charges filter buttons */
+        @media (max-width: 640px) {
+            #monthly-commission-filter-month,
+            #monthly-commission-filter-all {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
         
         /* Connection Status Styles */
         .connection-status {
@@ -1545,8 +1591,17 @@
                             
                             <!-- Monthly Performance - Now standalone -->
                             <div class="p-6 rounded-lg shadow-sm" style="background-color: var(--bg-primary); border: 1px solid var(--border-color);">
-                                <h3 class="font-semibold" style="color: var(--text-primary);">Monthly Performance</h3>
-                                <p class="text-sm" style="color: var(--text-secondary);">Monthly trading performance overview</p>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h3 class="font-semibold" style="color: var(--text-primary);">Monthly Performance</h3>
+                                        <p class="text-sm" style="color: var(--text-secondary);">Monthly trading performance overview</p>
+                                    </div>
+                                    <!-- Filter Buttons -->
+                                    <div class="flex gap-2">
+                                        <button id="monthly-performance-filter-month" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Month</button>
+                                        <button id="monthly-performance-filter-all" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">All Time</button>
+                                    </div>
+                                </div>
                                 <div class="relative h-64 mt-4">
                                 <canvas id="monthlyPerformanceChart"></canvas>
                                 </div>
@@ -1554,8 +1609,17 @@
 
                             <!-- Monthly Commission/Charges - Full Width -->
                             <div class="p-6 rounded-lg shadow-sm" style="background-color: var(--bg-primary); border: 1px solid var(--border-color);">
-                                <h3 class="font-semibold" style="color: var(--text-primary);">Monthly Commission/Charges</h3>
-                                <p class="text-sm" style="color: var(--text-secondary);">Monthly trading costs and commission breakdown</p>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h3 class="font-semibold" style="color: var(--text-primary);">Monthly Commission/Charges</h3>
+                                        <p class="text-sm" style="color: var(--text-secondary);">Monthly trading costs and commission breakdown</p>
+                                    </div>
+                                    <!-- Filter Buttons -->
+                                    <div class="flex gap-2">
+                                        <button id="monthly-commission-filter-month" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Month</button>
+                                        <button id="monthly-commission-filter-all" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">All Time</button>
+                                    </div>
+                                </div>
                                 <div class="relative h-80 mt-4">
                                 <canvas id="monthlyChargesChart"></canvas>
                                 </div>
@@ -13248,6 +13312,261 @@
             
             // Set initial active state
             setActiveDailyWinRateFilterButton('all');
+        });
+
+        // Monthly Performance Chart Filter Logic
+        let monthlyPerformanceChartFilter = 'all'; // Default to all time
+        
+        // Function to update monthly performance chart with filtered data
+        const updateMonthlyPerformanceChart = (period) => {
+            try {
+                const chart = chartInstances['monthlyPerformanceChart'];
+                if (!chart) return;
+
+                const dateRange = getPeriodDateRange(period);
+                const allTrades = appState.trades || [];
+                
+                // For All Time: use all data
+                // For Month: filter data within last 12 months
+                let filteredTrades = allTrades;
+                
+                if (dateRange.start && dateRange.end) {
+                    // Filter trades within period
+                    filteredTrades = allTrades.filter(trade => {
+                        const tradeDate = new Date(trade.entry_date || trade.exit_date);
+                        return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
+                    });
+                }
+                
+                // Calculate monthly P&L from filtered trades
+                const monthlyPnlData = {};
+                let totalTrades = 0;
+                let totalPnl = 0;
+                
+                filteredTrades.forEach(trade => {
+                    if (trade.exit_date && trade.exit_date !== '') {
+                        const exitDate = new Date(trade.exit_date);
+                        const monthKey = `${exitDate.getFullYear()}-${String(exitDate.getMonth() + 1).padStart(2, '0')}`;
+                        
+                        if (!monthlyPnlData[monthKey]) {
+                            monthlyPnlData[monthKey] = {
+                                pnl: 0,
+                                trades: 0,
+                                wins: 0,
+                                losses: 0
+                            };
+                        }
+                        
+                        const netPnl = calculateNetPnl(trade);
+                        monthlyPnlData[monthKey].pnl += netPnl;
+                        monthlyPnlData[monthKey].trades += 1;
+                        totalTrades += 1;
+                        totalPnl += netPnl;
+                        
+                        if (netPnl > 0) {
+                            monthlyPnlData[monthKey].wins += 1;
+                        } else if (netPnl < 0) {
+                            monthlyPnlData[monthKey].losses += 1;
+                        }
+                    }
+                });
+                
+                // Sort months chronologically
+                const sortedMonths = Object.keys(monthlyPnlData).sort();
+                
+                if (sortedMonths.length === 0) {
+                    chart.data.labels = [];
+                    chart.data.datasets[0].data = [];
+                    chart.update();
+                    return;
+                }
+                
+                // Prepare chart data
+                const chartLabels = sortedMonths.map(month => {
+                    const [year, monthNum] = month.split('-');
+                    const date = new Date(year, monthNum - 1);
+                    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                });
+                
+                const chartData = sortedMonths.map(month => monthlyPnlData[month].pnl);
+                
+                // Update chart
+                chart.data.labels = chartLabels;
+                chart.data.datasets[0].data = chartData;
+                chart.update();
+                
+            } catch (e) {
+                console.error('updateMonthlyPerformanceChart error', e);
+            }
+        };
+        
+        // Function to set active filter button for Monthly Performance
+        const setActiveMonthlyPerformanceFilterButton = (activePeriod) => {
+            // Remove active class from all buttons
+            document.querySelectorAll('#monthly-performance-filter-month, #monthly-performance-filter-all').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'var(--bg-secondary)';
+                btn.style.color = 'var(--text-secondary)';
+            });
+            
+            // Add active class to selected button
+            const activeButton = document.getElementById(`monthly-performance-filter-${activePeriod}`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.style.backgroundColor = 'var(--accent-color, #3b82f6)';
+                activeButton.style.color = 'white';
+            }
+        };
+        
+        // Add event listeners for Monthly Performance filter buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const monthButton = document.getElementById('monthly-performance-filter-month');
+            const allButton = document.getElementById('monthly-performance-filter-all');
+            
+            if (monthButton) {
+                monthButton.addEventListener('click', () => {
+                    monthlyPerformanceChartFilter = 'month';
+                    setActiveMonthlyPerformanceFilterButton('month');
+                    updateMonthlyPerformanceChart('month');
+                });
+            }
+            
+            if (allButton) {
+                allButton.addEventListener('click', () => {
+                    monthlyPerformanceChartFilter = 'all';
+                    setActiveMonthlyPerformanceFilterButton('all');
+                    updateMonthlyPerformanceChart('all');
+                });
+            }
+            
+            // Set initial active state
+            setActiveMonthlyPerformanceFilterButton('all');
+        });
+
+        // Monthly Commission/Charges Chart Filter Logic
+        let monthlyCommissionChartFilter = 'all'; // Default to all time
+        
+        // Function to update monthly commission/charges chart with filtered data
+        const updateMonthlyCommissionChart = (period) => {
+            try {
+                const chart = chartInstances['monthlyChargesChart'];
+                if (!chart) return;
+
+                const dateRange = getPeriodDateRange(period);
+                const allTrades = appState.trades || [];
+                
+                // For All Time: use all data
+                // For Month: filter data within last 12 months
+                let filteredTrades = allTrades;
+                
+                if (dateRange.start && dateRange.end) {
+                    // Filter trades within period
+                    filteredTrades = allTrades.filter(trade => {
+                        const tradeDate = new Date(trade.entry_date || trade.exit_date);
+                        return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
+                    });
+                }
+                
+                // Calculate monthly commission/charges from filtered trades
+                const monthlyChargesData = {};
+                let totalTrades = 0;
+                let totalCharges = 0;
+                
+                filteredTrades.forEach(trade => {
+                    if (trade.exit_date && trade.exit_date !== '') {
+                        const exitDate = new Date(trade.exit_date);
+                        const monthKey = `${exitDate.getFullYear()}-${String(exitDate.getMonth() + 1).padStart(2, '0')}`;
+                        
+                        if (!monthlyChargesData[monthKey]) {
+                            monthlyChargesData[monthKey] = {
+                                charges: 0,
+                                trades: 0,
+                                brokerage: 0,
+                                otherCharges: 0
+                            };
+                        }
+                        
+                        // Calculate total charges for this trade
+                        const tradeCharges = parseFloat(trade.brokerage || 0) + parseFloat(trade.charges || 0);
+                        monthlyChargesData[monthKey].charges += tradeCharges;
+                        monthlyChargesData[monthKey].brokerage += parseFloat(trade.brokerage || 0);
+                        monthlyChargesData[monthKey].otherCharges += parseFloat(trade.charges || 0);
+                        monthlyChargesData[monthKey].trades += 1;
+                        totalTrades += 1;
+                        totalCharges += tradeCharges;
+                    }
+                });
+                
+                // Sort months chronologically
+                const sortedMonths = Object.keys(monthlyChargesData).sort();
+                
+                if (sortedMonths.length === 0) {
+                    chart.data.labels = [];
+                    chart.data.datasets[0].data = [];
+                    chart.update();
+                    return;
+                }
+                
+                // Prepare chart data
+                const chartLabels = sortedMonths.map(month => {
+                    const [year, monthNum] = month.split('-');
+                    const date = new Date(year, monthNum - 1);
+                    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                });
+                
+                const chartData = sortedMonths.map(month => monthlyChargesData[month].charges);
+                
+                // Update chart
+                chart.data.labels = chartLabels;
+                chart.data.datasets[0].data = chartData;
+                chart.update();
+                
+            } catch (e) {
+                console.error('updateMonthlyCommissionChart error', e);
+            }
+        };
+        
+        // Function to set active filter button for Monthly Commission/Charges
+        const setActiveMonthlyCommissionFilterButton = (activePeriod) => {
+            // Remove active class from all buttons
+            document.querySelectorAll('#monthly-commission-filter-month, #monthly-commission-filter-all').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'var(--bg-secondary)';
+                btn.style.color = 'var(--text-secondary)';
+            });
+            
+            // Add active class to selected button
+            const activeButton = document.getElementById(`monthly-commission-filter-${activePeriod}`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.style.backgroundColor = 'var(--accent-color, #3b82f6)';
+                activeButton.style.color = 'white';
+            }
+        };
+        
+        // Add event listeners for Monthly Commission/Charges filter buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const monthButton = document.getElementById('monthly-commission-filter-month');
+            const allButton = document.getElementById('monthly-commission-filter-all');
+            
+            if (monthButton) {
+                monthButton.addEventListener('click', () => {
+                    monthlyCommissionChartFilter = 'month';
+                    setActiveMonthlyCommissionFilterButton('month');
+                    updateMonthlyCommissionChart('month');
+                });
+            }
+            
+            if (allButton) {
+                allButton.addEventListener('click', () => {
+                    monthlyCommissionChartFilter = 'all';
+                    setActiveMonthlyCommissionFilterButton('all');
+                    updateMonthlyCommissionChart('all');
+                });
+            }
+            
+            // Set initial active state
+            setActiveMonthlyCommissionFilterButton('all');
         });
         
         // --- FORM LOGIC (ALL FILLED IN) ---
