@@ -1058,6 +1058,32 @@
                 font-size: 0.75rem;
             }
         }
+
+        /* Account Balance Chart Filter Buttons */
+        #balance-filter-week:hover,
+        #balance-filter-month:hover,
+        #balance-filter-all:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        #balance-filter-week.active,
+        #balance-filter-month.active,
+        #balance-filter-all.active {
+            background-color: var(--accent-color, #3b82f6) !important;
+            color: white !important;
+            border-color: var(--accent-color, #3b82f6) !important;
+        }
+
+        /* Mobile responsiveness for balance filter buttons */
+        @media (max-width: 640px) {
+            #balance-filter-week,
+            #balance-filter-month,
+            #balance-filter-all {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
         
         /* Connection Status Styles */
         .connection-status {
@@ -1383,8 +1409,18 @@
                         <!-- Charts -->
                         <div class="space-y-8">
                             <div class="p-6 rounded-lg shadow-sm" style="background-color: var(--bg-primary); border: 1px solid var(--border-color);">
-                                <h3 class="font-semibold" style="color: var(--text-primary);">Account Balance</h3>
-                                <p class="text-sm" style="color: var(--text-secondary);">Account Value over time</p>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h3 class="font-semibold" style="color: var(--text-primary);">Account Balance</h3>
+                                        <p class="text-sm" style="color: var(--text-secondary);">Account Value over time</p>
+                                    </div>
+                                    <!-- Filter Buttons -->
+                                    <div class="flex gap-2">
+                                        <button id="balance-filter-week" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Week</button>
+                                        <button id="balance-filter-month" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Month</button>
+                                        <button id="balance-filter-all" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">All Time</button>
+                                    </div>
+                                </div>
                                 <div class="relative h-80 mt-4">
                                 <canvas id="accountBalanceChart"></canvas>
                                 </div>
@@ -8290,6 +8326,10 @@
                 const openTrades = allOpenTrades
                     .map(trade => {
                         const entryTime = new Date(trade.entry_date).getTime();
+                        // Add validation for invalid dates
+                        if (isNaN(entryTime) || !trade.entry_date) {
+                            return { ...trade, daysOpen: 0 };
+                        }
                         const daysOpen = Math.ceil((currentTime - entryTime) / (1000 * 60 * 60 * 24));
                         return { ...trade, daysOpen };
                     })
@@ -12387,6 +12427,272 @@
             }
             }, forceRender ? 0 : 50); // 50ms debounce, or immediate if forced
         };
+
+        // --- ACCOUNT BALANCE CHART FILTER LOGIC ---
+        let balanceChartFilter = 'all'; // Default to all time
+        
+        // Function to get period date range
+        const getPeriodDateRange = (period) => {
+            const now = new Date();
+            switch (period) {
+                case 'week':
+                    const weekStart = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+                    return { start: weekStart, end: now };
+                case 'month':
+                    const monthStart = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+                    return { start: monthStart, end: now };
+                case 'all':
+                default:
+                    return { start: null, end: null }; // All time
+            }
+        };
+
+        // Function to filter trades by time period
+        const filterTradesByTimePeriod = (trades, period) => {
+            if (!trades || trades.length === 0) return [];
+            
+            const dateRange = getPeriodDateRange(period);
+            if (!dateRange.start) return trades; // All time
+            
+            return trades.filter(trade => {
+                const tradeDate = new Date(trade.entry_date || trade.exit_date);
+                return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
+            });
+        };
+
+        // Function to update balance chart with filtered data
+        const updateBalanceChart = (period) => {
+            try {
+                const chart = chartInstances['accountBalanceChart'];
+                if (!chart) return;
+
+                const dateRange = getPeriodDateRange(period);
+                const allTrades = appState.trades || [];
+                const ledger = appState.ledger || [];
+                
+                // For All Time: use all data
+                // For Week/Month: filter data within period
+                let filteredTrades = allTrades;
+                let filteredLedger = ledger;
+                
+                if (dateRange.start && dateRange.end) {
+                    // Filter trades within period
+                    filteredTrades = allTrades.filter(trade => {
+                        const tradeDate = new Date(trade.entry_date || trade.exit_date);
+                        return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
+                    });
+                    
+                    // Filter ledger within period
+                    filteredLedger = ledger.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate >= dateRange.start && entryDate <= dateRange.end;
+                    });
+                }
+                
+                // Get all unique dates from trades and ledger
+                const allDates = new Set();
+                
+                if (period === 'all') {
+                    // All Time: Use ALL data for complete historical view
+                    allTrades.forEach(trade => {
+                        if (trade.entry_date) allDates.add(trade.entry_date);
+                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    });
+                    
+                    ledger.forEach(entry => {
+                        if (entry.date) allDates.add(entry.date);
+                    });
+                } else {
+                    // Week/Month: Use filtered data for period-specific view
+                    filteredTrades.forEach(trade => {
+                        if (trade.entry_date) allDates.add(trade.entry_date);
+                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    });
+                    
+                    filteredLedger.forEach(entry => {
+                        if (entry.date) allDates.add(entry.date);
+                    });
+                }
+                
+                const deduplicatedDates = Array.from(allDates);
+                const sortedDates = deduplicatedDates.sort();
+                
+                if (sortedDates.length === 0) {
+                    chart.data.labels = [];
+                    chart.data.datasets[0].data = [];
+                    chart.update();
+                    return;
+                }
+                
+                // Calculate balance progression
+                const chartLabels = sortedDates.map(date => formatDateDDMMYYYY(date));
+                const accountValueData = [];
+                
+                if (period === 'all') {
+                    // All Time: Show cumulative balance from beginning
+                    sortedDates.forEach(date => {
+                        const dateTime = new Date(date).getTime();
+                        
+                        // Calculate P&L up to this date (from all trades)
+                        let pnlToDate = 0;
+                        allTrades.forEach(trade => {
+                            const exitDate = trade.exit_date ? new Date(trade.exit_date).getTime() : null;
+                            if (exitDate && exitDate <= dateTime) {
+                                pnlToDate += calculateNetPnl(trade);
+                            }
+                        });
+                        
+                        // Calculate deposits up to this date (from all ledger)
+                        let depositsToDate = 0;
+                        ledger.forEach(entry => {
+                            const entryDate = new Date(entry.date).getTime();
+                            if (entryDate <= dateTime && entry.type === 'deposit') {
+                                depositsToDate += parseFloat(entry.amount) || 0;
+                            }
+                        });
+                        
+                        // Calculate withdrawals up to this date (from all ledger)
+                        let withdrawalsToDate = 0;
+                        ledger.forEach(entry => {
+                            const entryDate = new Date(entry.date).getTime();
+                            if (entryDate <= dateTime && entry.type === 'withdrawal') {
+                                withdrawalsToDate += parseFloat(entry.amount) || 0;
+                            }
+                        });
+                        
+                        // Account value = starting balance + deposits - withdrawals + P&L
+                        const startingBalance = parseFloat(appState.startingBalance) || 0;
+                        const accountValue = startingBalance + depositsToDate - withdrawalsToDate + pnlToDate;
+                        accountValueData.push(accountValue);
+                    });
+                } else {
+                    // Week/Month: Show balance progression within period
+                    // Get starting balance at beginning of period
+                    const periodStartTime = dateRange.start.getTime();
+                    let startingBalanceForPeriod = parseFloat(appState.startingBalance) || 0;
+                    
+                    // Add deposits before period
+                    ledger.forEach(entry => {
+                        const entryDate = new Date(entry.date).getTime();
+                        if (entryDate < periodStartTime && entry.type === 'deposit') {
+                            startingBalanceForPeriod += parseFloat(entry.amount) || 0;
+                        }
+                    });
+                    
+                    // Subtract withdrawals before period
+                    ledger.forEach(entry => {
+                        const entryDate = new Date(entry.date).getTime();
+                        if (entryDate < periodStartTime && entry.type === 'withdrawal') {
+                            startingBalanceForPeriod -= parseFloat(entry.amount) || 0;
+                        }
+                    });
+                    
+                    // Add P&L before period
+                    allTrades.forEach(trade => {
+                        const exitDate = trade.exit_date ? new Date(trade.exit_date).getTime() : null;
+                        if (exitDate && exitDate < periodStartTime) {
+                            startingBalanceForPeriod += calculateNetPnl(trade);
+                        }
+                    });
+                    
+                    // Now calculate progression within period
+                    sortedDates.forEach(date => {
+                        const dateTime = new Date(date).getTime();
+                        
+                        // Calculate P&L within period up to this date
+                        let pnlInPeriod = 0;
+                        filteredTrades.forEach(trade => {
+                            const exitDate = trade.exit_date ? new Date(trade.exit_date).getTime() : null;
+                            if (exitDate && exitDate <= dateTime) {
+                                pnlInPeriod += calculateNetPnl(trade);
+                            }
+                        });
+                        
+                        // Calculate deposits within period up to this date
+                        let depositsInPeriod = 0;
+                        filteredLedger.forEach(entry => {
+                            const entryDate = new Date(entry.date).getTime();
+                            if (entryDate <= dateTime && entry.type === 'deposit') {
+                                depositsInPeriod += parseFloat(entry.amount) || 0;
+                            }
+                        });
+                        
+                        // Calculate withdrawals within period up to this date
+                        let withdrawalsInPeriod = 0;
+                        filteredLedger.forEach(entry => {
+                            const entryDate = new Date(entry.date).getTime();
+                            if (entryDate <= dateTime && entry.type === 'withdrawal') {
+                                withdrawalsInPeriod += parseFloat(entry.amount) || 0;
+                            }
+                        });
+                        
+                        // Account value = starting balance + deposits - withdrawals + P&L
+                        const accountValue = startingBalanceForPeriod + depositsInPeriod - withdrawalsInPeriod + pnlInPeriod;
+                        accountValueData.push(accountValue);
+                    });
+                }
+                
+                // Update chart data
+                chart.data.labels = chartLabels;
+                chart.data.datasets[0].data = accountValueData;
+                chart.update();
+                
+            } catch (e) {
+                console.error('updateBalanceChart error', e);
+            }
+        };
+
+        // Function to set active filter button
+        const setActiveFilterButton = (activePeriod) => {
+            // Remove active class from all buttons
+            document.querySelectorAll('#balance-filter-week, #balance-filter-month, #balance-filter-all').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'var(--bg-secondary)';
+                btn.style.color = 'var(--text-secondary)';
+            });
+            
+            // Add active class to selected button
+            const activeButton = document.getElementById(`balance-filter-${activePeriod}`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.style.backgroundColor = 'var(--accent-color, #3b82f6)';
+                activeButton.style.color = 'white';
+            }
+        };
+
+        // Add event listeners for filter buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const weekButton = document.getElementById('balance-filter-week');
+            const monthButton = document.getElementById('balance-filter-month');
+            const allButton = document.getElementById('balance-filter-all');
+            
+            if (weekButton) {
+                weekButton.addEventListener('click', () => {
+                    balanceChartFilter = 'week';
+                    setActiveFilterButton('week');
+                    updateBalanceChart('week');
+                });
+            }
+            
+            if (monthButton) {
+                monthButton.addEventListener('click', () => {
+                    balanceChartFilter = 'month';
+                    setActiveFilterButton('month');
+                    updateBalanceChart('month');
+                });
+            }
+            
+            if (allButton) {
+                allButton.addEventListener('click', () => {
+                    balanceChartFilter = 'all';
+                    setActiveFilterButton('all');
+                    updateBalanceChart('all');
+                });
+            }
+            
+            // Set initial active state
+            setActiveFilterButton('all');
+        });
         
         // --- FORM LOGIC (ALL FILLED IN) ---
         const tradeForm = document.getElementById('manual-trade-form');
