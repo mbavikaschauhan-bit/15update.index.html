@@ -1084,6 +1084,84 @@
                 font-size: 0.75rem;
             }
         }
+
+        /* Equity Curve Chart Filter Buttons */
+        #equity-filter-week:hover,
+        #equity-filter-month:hover,
+        #equity-filter-all:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        #equity-filter-week.active,
+        #equity-filter-month.active,
+        #equity-filter-all.active {
+            background-color: var(--accent-color, #3b82f6) !important;
+            color: white !important;
+            border-color: var(--accent-color, #3b82f6) !important;
+        }
+
+        /* Mobile responsiveness for equity filter buttons */
+        @media (max-width: 640px) {
+            #equity-filter-week,
+            #equity-filter-month,
+            #equity-filter-all {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Daily P&L Chart Filter Buttons */
+        #dailyPnl-filter-week:hover,
+        #dailyPnl-filter-month:hover,
+        #dailyPnl-filter-all:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        #dailyPnl-filter-week.active,
+        #dailyPnl-filter-month.active,
+        #dailyPnl-filter-all.active {
+            background-color: var(--accent-color, #3b82f6) !important;
+            color: white !important;
+            border-color: var(--accent-color, #3b82f6) !important;
+        }
+
+        /* Mobile responsiveness for Daily P&L filter buttons */
+        @media (max-width: 640px) {
+            #dailyPnl-filter-week,
+            #dailyPnl-filter-month,
+            #dailyPnl-filter-all {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Daily Win Rate Chart Filter Buttons */
+        #dailyWinRate-filter-week:hover,
+        #dailyWinRate-filter-month:hover,
+        #dailyWinRate-filter-all:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        #dailyWinRate-filter-week.active,
+        #dailyWinRate-filter-month.active,
+        #dailyWinRate-filter-all.active {
+            background-color: var(--accent-color, #3b82f6) !important;
+            color: white !important;
+            border-color: var(--accent-color, #3b82f6) !important;
+        }
+
+        /* Mobile responsiveness for Daily Win Rate filter buttons */
+        @media (max-width: 640px) {
+            #dailyWinRate-filter-week,
+            #dailyWinRate-filter-month,
+            #dailyWinRate-filter-all {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
         
         /* Connection Status Styles */
         .connection-status {
@@ -1428,8 +1506,18 @@
                             
                             <!-- Equity Curve - Full Width -->
                             <div class="p-6 rounded-lg shadow-sm" style="background-color: var(--bg-primary); border: 1px solid var(--border-color);">
-                                <h3 class="font-semibold" style="color: var(--text-primary);">Equity Curve</h3>
-                                <p class="text-sm" style="color: var(--text-secondary);">Trading Performance over time</p>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h3 class="font-semibold" style="color: var(--text-primary);">Equity Curve</h3>
+                                        <p class="text-sm" style="color: var(--text-secondary);">Trading Performance over time</p>
+                                    </div>
+                                    <!-- Filter Buttons -->
+                                    <div class="flex gap-2">
+                                        <button id="equity-filter-week" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Week</button>
+                                        <button id="equity-filter-month" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Month</button>
+                                        <button id="equity-filter-all" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">All Time</button>
+                                    </div>
+                                </div>
                                 <div class="relative h-80 mt-4">
                                 <canvas id="equityCurveChart"></canvas>
                                 </div>
@@ -1437,8 +1525,18 @@
                             
                             <!-- Daily P&L - Full Width -->
                             <div class="p-6 rounded-lg shadow-sm" style="background-color: var(--bg-primary); border: 1px solid var(--border-color);">
-                                <h3 class="font-semibold" style="color: var(--text-primary);">Daily P&L</h3>
-                                <p class="text-sm" style="color: var(--text-secondary);">Daily profit and loss over time</p>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h3 class="font-semibold" style="color: var(--text-primary);">Daily P&L</h3>
+                                        <p class="text-sm" style="color: var(--text-secondary);">Daily profit and loss over time</p>
+                                    </div>
+                                    <!-- Filter Buttons -->
+                                    <div class="flex gap-2">
+                                        <button id="dailyPnl-filter-week" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Week</button>
+                                        <button id="dailyPnl-filter-month" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Month</button>
+                                        <button id="dailyPnl-filter-all" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">All Time</button>
+                                    </div>
+                                </div>
                                 <div class="relative h-80 mt-4">
                                 <canvas id="dailyPnlChart"></canvas>
                                 <p id="dailyPnlMessage" class="hidden absolute inset-0 flex items-center justify-center" style="color: var(--text-muted);">No P&L data yet</p>
@@ -1465,8 +1563,18 @@
 
                             <!-- Daily Win Rate - Full Width -->
                             <div class="p-6 rounded-lg shadow-sm" style="background-color: var(--bg-primary); border: 1px solid var(--border-color);">
-                                <h3 class="font-semibold" style="color: var(--text-primary);">Daily Win Rate</h3>
-                                <p class="text-sm" style="color: var(--text-secondary);">Daily win rate analysis and performance trends</p>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h3 class="font-semibold" style="color: var(--text-primary);">Daily Win Rate</h3>
+                                        <p class="text-sm" style="color: var(--text-secondary);">Daily win rate analysis and performance trends</p>
+                                    </div>
+                                    <!-- Filter Buttons -->
+                                    <div class="flex gap-2">
+                                        <button id="dailyWinRate-filter-week" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Week</button>
+                                        <button id="dailyWinRate-filter-month" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">Month</button>
+                                        <button id="dailyWinRate-filter-all" class="px-3 py-1 rounded text-sm font-medium transition-colors" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);">All Time</button>
+                                    </div>
+                                </div>
                                 <div class="relative h-80 mt-4" style="min-height: 320px;">
                                 <canvas id="dailyWinRateChart" style="display: block; width: 100%; height: 100%;"></canvas>
                                 <div id="dailyWinRateMessage" class="hidden absolute inset-0 flex items-center justify-center" style="color: var(--text-muted);">Loading chart...</div>
@@ -12692,6 +12800,454 @@
             
             // Set initial active state
             setActiveFilterButton('all');
+        });
+
+        // --- EQUITY CURVE CHART FILTER LOGIC ---
+        let equityChartFilter = 'all'; // Default to all time
+        
+        // Function to update equity chart with filtered data
+        const updateEquityChart = (period) => {
+            try {
+                const chart = chartInstances['equityCurveChart'];
+                if (!chart) return;
+
+                const dateRange = getPeriodDateRange(period);
+                const allTrades = appState.trades || [];
+                
+                // For All Time: use all data
+                // For Week/Month: filter data within period
+                let filteredTrades = allTrades;
+                
+                if (dateRange.start && dateRange.end) {
+                    // Filter trades within period
+                    filteredTrades = allTrades.filter(trade => {
+                        const tradeDate = new Date(trade.entry_date || trade.exit_date);
+                        return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
+                    });
+                }
+                
+                // Get all unique dates from filtered trades
+                const allDates = new Set();
+                
+                if (period === 'all') {
+                    // All Time: Use ALL data for complete historical view
+                    allTrades.forEach(trade => {
+                        if (trade.entry_date) allDates.add(trade.entry_date);
+                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    });
+                } else {
+                    // Week/Month: Use filtered data for period-specific view
+                    filteredTrades.forEach(trade => {
+                        if (trade.entry_date) allDates.add(trade.entry_date);
+                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    });
+                }
+                
+                const deduplicatedDates = Array.from(allDates);
+                const sortedDates = deduplicatedDates.sort();
+                
+                if (sortedDates.length === 0) {
+                    chart.data.labels = [];
+                    chart.data.datasets[0].data = [];
+                    chart.update();
+                    return;
+                }
+                
+                // Calculate equity curve progression
+                const chartLabels = sortedDates.map(date => formatDateDDMMYYYY(date));
+                const equityData = [];
+                
+                if (period === 'all') {
+                    // All Time: Show cumulative equity from beginning
+                    let cumulativePnl = 0;
+                    sortedDates.forEach(date => {
+                        const dateTime = new Date(date).getTime();
+                        
+                        // Calculate P&L up to this date (from all trades)
+                        let pnlToDate = 0;
+                        allTrades.forEach(trade => {
+                            const exitDate = trade.exit_date ? new Date(trade.exit_date).getTime() : null;
+                            if (exitDate && exitDate <= dateTime) {
+                                pnlToDate += calculateNetPnl(trade);
+                            }
+                        });
+                        
+                        cumulativePnl = pnlToDate;
+                        equityData.push(cumulativePnl);
+                    });
+                } else {
+                    // Week/Month: Show equity progression within period
+                    // Get starting equity at beginning of period
+                    const periodStartTime = dateRange.start.getTime();
+                    let startingEquityForPeriod = 0;
+                    
+                    // Add P&L before period
+                    allTrades.forEach(trade => {
+                        const exitDate = trade.exit_date ? new Date(trade.exit_date).getTime() : null;
+                        if (exitDate && exitDate < periodStartTime) {
+                            startingEquityForPeriod += calculateNetPnl(trade);
+                        }
+                    });
+                    
+                    // Now calculate progression within period
+                    sortedDates.forEach(date => {
+                        const dateTime = new Date(date).getTime();
+                        
+                        // Calculate P&L within period up to this date
+                        let pnlInPeriod = 0;
+                        filteredTrades.forEach(trade => {
+                            const exitDate = trade.exit_date ? new Date(trade.exit_date).getTime() : null;
+                            if (exitDate && exitDate <= dateTime) {
+                                pnlInPeriod += calculateNetPnl(trade);
+                            }
+                        });
+                        
+                        // Equity = starting equity + P&L in period
+                        const equity = startingEquityForPeriod + pnlInPeriod;
+                        equityData.push(equity);
+                    });
+                }
+                
+                // Update chart data
+                chart.data.labels = chartLabels;
+                chart.data.datasets[0].data = equityData;
+                chart.update();
+                
+            } catch (e) {
+                console.error('updateEquityChart error', e);
+            }
+        };
+
+        // Function to set active equity filter button
+        const setActiveEquityFilterButton = (activePeriod) => {
+            // Remove active class from all buttons
+            document.querySelectorAll('#equity-filter-week, #equity-filter-month, #equity-filter-all').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'var(--bg-secondary)';
+                btn.style.color = 'var(--text-secondary)';
+            });
+            
+            // Add active class to selected button
+            const activeButton = document.getElementById(`equity-filter-${activePeriod}`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.style.backgroundColor = 'var(--accent-color, #3b82f6)';
+                activeButton.style.color = 'white';
+            }
+        };
+
+        // Add event listeners for equity filter buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const equityWeekButton = document.getElementById('equity-filter-week');
+            const equityMonthButton = document.getElementById('equity-filter-month');
+            const equityAllButton = document.getElementById('equity-filter-all');
+            
+            if (equityWeekButton) {
+                equityWeekButton.addEventListener('click', () => {
+                    equityChartFilter = 'week';
+                    setActiveEquityFilterButton('week');
+                    updateEquityChart('week');
+                });
+            }
+            
+            if (equityMonthButton) {
+                equityMonthButton.addEventListener('click', () => {
+                    equityChartFilter = 'month';
+                    setActiveEquityFilterButton('month');
+                    updateEquityChart('month');
+                });
+            }
+            
+            if (equityAllButton) {
+                equityAllButton.addEventListener('click', () => {
+                    equityChartFilter = 'all';
+                    setActiveEquityFilterButton('all');
+                    updateEquityChart('all');
+                });
+            }
+            
+            // Set initial active state
+            setActiveEquityFilterButton('all');
+        });
+
+        // --- DAILY P&L CHART FILTER LOGIC ---
+        let dailyPnlChartFilter = 'all'; // Default to all time
+        
+        // Function to update daily P&L chart with filtered data
+        const updateDailyPnlChart = (period) => {
+            try {
+                const chart = chartInstances['dailyPnlChart'];
+                if (!chart) return;
+
+                const dateRange = getPeriodDateRange(period);
+                const allTrades = appState.trades || [];
+                
+                // For All Time: use all data
+                // For Week/Month: filter data within period
+                let filteredTrades = allTrades;
+                
+                if (dateRange.start && dateRange.end) {
+                    // Filter trades within period
+                    filteredTrades = allTrades.filter(trade => {
+                        const tradeDate = new Date(trade.exit_date);
+                        return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
+                    });
+                }
+                
+                // Get all unique dates from filtered trades
+                const allDates = new Set();
+                
+                if (period === 'all') {
+                    // All Time: Use ALL data for complete historical view
+                    allTrades.forEach(trade => {
+                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    });
+                } else {
+                    // Week/Month: Use filtered data for period-specific view
+                    filteredTrades.forEach(trade => {
+                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    });
+                }
+                
+                const deduplicatedDates = Array.from(allDates);
+                const sortedDates = deduplicatedDates.sort();
+                
+                if (sortedDates.length === 0) {
+                    chart.data.labels = [];
+                    chart.data.datasets[0].data = [];
+                    chart.update();
+                    return;
+                }
+                
+                // Calculate daily P&L data
+                const chartLabels = sortedDates.map(date => formatDateDDMMYYYY(date));
+                const dailyPnlData = {};
+                
+                // Calculate daily P&L from filtered trades
+                filteredTrades.forEach(trade => {
+                    if (trade.exit_date) {
+                        const date = trade.exit_date;
+                        const pnl = calculateNetPnl(trade);
+                        dailyPnlData[date] = (dailyPnlData[date] || 0) + pnl;
+                    }
+                });
+                
+                const data = sortedDates.map(date => dailyPnlData[date] || 0);
+                
+                // Update chart data
+                chart.data.labels = chartLabels;
+                chart.data.datasets[0].data = data;
+                
+                // Update colors based on positive/negative values
+                chart.data.datasets[0].backgroundColor = data.map(value => 
+                    value >= 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)'
+                );
+                chart.data.datasets[0].borderColor = data.map(value => 
+                    value >= 0 ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'
+                );
+                
+                chart.update();
+                
+            } catch (e) {
+                console.error('updateDailyPnlChart error', e);
+            }
+        };
+
+        // Function to set active daily P&L filter button
+        const setActiveDailyPnlFilterButton = (activePeriod) => {
+            // Remove active class from all buttons
+            document.querySelectorAll('#dailyPnl-filter-week, #dailyPnl-filter-month, #dailyPnl-filter-all').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'var(--bg-secondary)';
+                btn.style.color = 'var(--text-secondary)';
+            });
+            
+            // Add active class to selected button
+            const activeButton = document.getElementById(`dailyPnl-filter-${activePeriod}`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.style.backgroundColor = 'var(--accent-color, #3b82f6)';
+                activeButton.style.color = 'white';
+            }
+        };
+
+        // Add event listeners for daily P&L filter buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const dailyPnlWeekButton = document.getElementById('dailyPnl-filter-week');
+            const dailyPnlMonthButton = document.getElementById('dailyPnl-filter-month');
+            const dailyPnlAllButton = document.getElementById('dailyPnl-filter-all');
+            
+            if (dailyPnlWeekButton) {
+                dailyPnlWeekButton.addEventListener('click', () => {
+                    dailyPnlChartFilter = 'week';
+                    setActiveDailyPnlFilterButton('week');
+                    updateDailyPnlChart('week');
+                });
+            }
+            
+            if (dailyPnlMonthButton) {
+                dailyPnlMonthButton.addEventListener('click', () => {
+                    dailyPnlChartFilter = 'month';
+                    setActiveDailyPnlFilterButton('month');
+                    updateDailyPnlChart('month');
+                });
+            }
+            
+            if (dailyPnlAllButton) {
+                dailyPnlAllButton.addEventListener('click', () => {
+                    dailyPnlChartFilter = 'all';
+                    setActiveDailyPnlFilterButton('all');
+                    updateDailyPnlChart('all');
+                });
+            }
+            
+            // Set initial active state
+            setActiveDailyPnlFilterButton('all');
+        });
+
+        // --- DAILY WIN RATE CHART FILTER LOGIC ---
+        let dailyWinRateChartFilter = 'all'; // Default to all time
+        
+        // Function to update daily win rate chart with filtered data
+        const updateDailyWinRateChart = (period) => {
+            try {
+                const chart = chartInstances['dailyWinRateChart'];
+                if (!chart) return;
+
+                const dateRange = getPeriodDateRange(period);
+                const allTrades = appState.trades || [];
+                
+                // For All Time: use all data
+                // For Week/Month: filter data within period
+                let filteredTrades = allTrades;
+                
+                if (dateRange.start && dateRange.end) {
+                    // Filter trades within period
+                    filteredTrades = allTrades.filter(trade => {
+                        const tradeDate = new Date(trade.exit_date);
+                        return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
+                    });
+                }
+                
+                // Get all unique dates from filtered trades
+                const allDates = new Set();
+                
+                if (period === 'all') {
+                    // All Time: Use ALL data for complete historical view
+                    allTrades.forEach(trade => {
+                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    });
+                } else {
+                    // Week/Month: Use filtered data for period-specific view
+                    filteredTrades.forEach(trade => {
+                        if (trade.exit_date) allDates.add(trade.exit_date);
+                    });
+                }
+                
+                const deduplicatedDates = Array.from(allDates);
+                const sortedDates = deduplicatedDates.sort();
+                
+                if (sortedDates.length === 0) {
+                    chart.data.labels = [];
+                    chart.data.datasets[0].data = [];
+                    chart.data.datasets[1].data = [];
+                    chart.update();
+                    return;
+                }
+                
+                // Calculate daily win rate data
+                const chartLabels = sortedDates.map(date => formatDateDDMMYYYY(date));
+                const dailyWinRateData = [];
+                const avgWinRateData = [];
+                
+                let cumulativeWins = 0;
+                let cumulativeTrades = 0;
+                
+                sortedDates.forEach(date => {
+                    // Calculate daily win rate statistics for this date
+                    const dayTrades = filteredTrades.filter(trade => {
+                        if (trade.exit_date) {
+                            const exitDate = new Date(trade.exit_date);
+                            const tradeDate = exitDate.toISOString().split('T')[0];
+                            return tradeDate === date;
+                        }
+                        return false;
+                    });
+                    
+                    const dailyWins = dayTrades.filter(trade => calculateNetPnl(trade) > 0).length;
+                    const totalTrades = dayTrades.length;
+                    const dailyRatePct = totalTrades > 0 ? (dailyWins / totalTrades) * 100 : 0;
+                    
+                    dailyWinRateData.push(dailyRatePct);
+                    
+                    // Calculate cumulative average win rate
+                    cumulativeWins += dailyWins;
+                    cumulativeTrades += totalTrades;
+                    const avgWinRate = cumulativeTrades > 0 ? (cumulativeWins / cumulativeTrades) * 100 : 0;
+                    avgWinRateData.push(avgWinRate);
+                });
+                
+                // Update chart data
+                chart.data.labels = chartLabels;
+                chart.data.datasets[0].data = dailyWinRateData;
+                chart.data.datasets[1].data = avgWinRateData;
+                chart.update();
+                
+            } catch (e) {
+                console.error('updateDailyWinRateChart error', e);
+            }
+        };
+
+        // Function to set active daily win rate filter button
+        const setActiveDailyWinRateFilterButton = (activePeriod) => {
+            // Remove active class from all buttons
+            document.querySelectorAll('#dailyWinRate-filter-week, #dailyWinRate-filter-month, #dailyWinRate-filter-all').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'var(--bg-secondary)';
+                btn.style.color = 'var(--text-secondary)';
+            });
+            
+            // Add active class to selected button
+            const activeButton = document.getElementById(`dailyWinRate-filter-${activePeriod}`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.style.backgroundColor = 'var(--accent-color, #3b82f6)';
+                activeButton.style.color = 'white';
+            }
+        };
+
+        // Add event listeners for daily win rate filter buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const dailyWinRateWeekButton = document.getElementById('dailyWinRate-filter-week');
+            const dailyWinRateMonthButton = document.getElementById('dailyWinRate-filter-month');
+            const dailyWinRateAllButton = document.getElementById('dailyWinRate-filter-all');
+            
+            if (dailyWinRateWeekButton) {
+                dailyWinRateWeekButton.addEventListener('click', () => {
+                    dailyWinRateChartFilter = 'week';
+                    setActiveDailyWinRateFilterButton('week');
+                    updateDailyWinRateChart('week');
+                });
+            }
+            
+            if (dailyWinRateMonthButton) {
+                dailyWinRateMonthButton.addEventListener('click', () => {
+                    dailyWinRateChartFilter = 'month';
+                    setActiveDailyWinRateFilterButton('month');
+                    updateDailyWinRateChart('month');
+                });
+            }
+            
+            if (dailyWinRateAllButton) {
+                dailyWinRateAllButton.addEventListener('click', () => {
+                    dailyWinRateChartFilter = 'all';
+                    setActiveDailyWinRateFilterButton('all');
+                    updateDailyWinRateChart('all');
+                });
+            }
+            
+            // Set initial active state
+            setActiveDailyWinRateFilterButton('all');
         });
         
         // --- FORM LOGIC (ALL FILLED IN) ---
