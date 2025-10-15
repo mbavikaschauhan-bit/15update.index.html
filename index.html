@@ -920,33 +920,6 @@
         }
 
 
-        /* Custom date range animation */
-        #customDateRange {
-            transition: all 0.3s ease-in-out;
-        }
-
-        #customDateRange.hidden {
-            opacity: 0;
-            max-height: 0;
-            overflow: hidden;
-        }
-
-        #customDateRange:not(.hidden) {
-            opacity: 1;
-            max-height: 100px;
-        }
-
-        /* Mobile responsiveness for date filter */
-        @media (max-width: 640px) {
-            .flex-col.sm\\:flex-row {
-                align-items: stretch;
-            }
-            
-            #dateFilter, #startDate, #endDate {
-                width: 100%;
-                min-width: auto;
-            }
-        }
         
         /* Info Tooltip Styles */
         .info-tooltip {
@@ -1260,30 +1233,6 @@
                         <div class="flex flex-col sm:flex-row gap-4 mb-6 items-start sm:items-center justify-between">
                             <h2 class="text-2xl font-bold" style="color: var(--text-primary);">Analytics</h2>
                             
-                            <!-- Date Filter Section -->
-                            <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                                <label class="text-sm font-medium" style="color: var(--text-secondary);">Filter by:</label>
-                                <div class="relative">
-                                    <select id="dateFilter" class="px-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: var(--bg-primary); border-color: var(--border-color); color: var(--text-primary); min-width: 180px;">
-                                        <option value="all-time">All Time</option>
-                                        <option value="today">Today</option>
-                                        <option value="yesterday">Yesterday</option>
-                                        <option value="last-7-days">Last 7 Days</option>
-                                        <option value="last-30-days">Last 30 Days</option>
-                                        <option value="last-3-months">Last 3 Months</option>
-                                        <option value="last-6-months">Last 6 Months</option>
-                                        <option value="last-1-year">Last 1 Year</option>
-                                        <option value="custom">Custom Date Range</option>
-                                    </select>
-                                </div>
-                                
-                                <!-- Custom Date Range Inputs (Hidden by default) -->
-                                <div id="customDateRange" class="hidden flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-                                    <input type="date" id="startDate" class="px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: var(--bg-primary); border-color: var(--border-color); color: var(--text-primary);">
-                                    <span class="text-sm" style="color: var(--text-secondary);">to</span>
-                                    <input type="date" id="endDate" class="px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: var(--bg-primary); border-color: var(--border-color); color: var(--text-primary);">
-                                </div>
-                            </div>
                         </div>
                         
                         <!-- Performance Stats -->
@@ -16204,145 +16153,18 @@
 
         // Date Filter Functionality (Optimized for Speed)
         document.addEventListener('DOMContentLoaded', function() {
-            const dateFilter = document.getElementById('dateFilter');
-            const customDateRange = document.getElementById('customDateRange');
-            const startDate = document.getElementById('startDate');
-            const endDate = document.getElementById('endDate');
             
-            // Cache for performance optimization
-            let lastFilterValue = 'all-time';
-            let cachedFilteredTrades = null;
-            // Show/hide custom date range inputs and refresh data instantly
-            dateFilter.addEventListener('change', function() {
-                if (this.value === 'custom') {
-                    customDateRange.classList.remove('hidden');
-                } else {
-                    customDateRange.classList.add('hidden');
-                }
-                // Instant data refresh when filter changes
-                refreshDashboardData();
-            });
 
-            // Handle custom date range changes with instant updates
-            startDate.addEventListener('change', function() {
-                if (dateFilter.value === 'custom') {
-                    refreshDashboardData();
-                }
-            });
 
-            endDate.addEventListener('change', function() {
-                if (dateFilter.value === 'custom') {
-                    refreshDashboardData();
-                }
-            });
-
-            // Function to get date range based on selected filter
-            function getDateRange() {
-                const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                
-                switch (dateFilter.value) {
-                    case 'today':
-                        return {
-                            start: today,
-                            end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
-                        };
-                    case 'yesterday':
-                        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                        return {
-                            start: yesterday,
-                            end: new Date(yesterday.getTime() + 24 * 60 * 60 * 1000 - 1)
-                        };
-                    case 'last-7-days':
-                        return {
-                            start: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000),
-                            end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
-                        };
-                    case 'last-30-days':
-                        return {
-                            start: new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000),
-                            end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
-                        };
-                    case 'last-3-months':
-                        const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-                        return {
-                            start: threeMonthsAgo,
-                            end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
-                        };
-                    case 'last-6-months':
-                        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-                        return {
-                            start: sixMonthsAgo,
-                            end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
-                        };
-                    case 'last-1-year':
-                        const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-                        return {
-                            start: oneYearAgo,
-                            end: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
-                        };
-                    case 'custom':
-                        if (startDate.value && endDate.value) {
-                            return {
-                                start: new Date(startDate.value),
-                                end: new Date(endDate.value + 'T23:59:59')
-                            };
-                        }
-                        return null;
-                    case 'all-time':
-                    default:
-                        return null; // No date filtering
-                }
-            }
-
-            // Function to refresh dashboard data based on date filter (optimized for speed)
+            // Function to refresh dashboard data (simplified - shows all data)
             function refreshDashboardData() {
-                const currentFilterValue = dateFilter.value;
-                console.log('Filter changed to:', currentFilterValue);
-                
-                // Use cache if filter hasn't changed
-                if (currentFilterValue === lastFilterValue && cachedFilteredTrades) {
-                    console.log('Using cached filtered data');
-                    updateDashboardStats(cachedFilteredTrades);
-                    updateCharts(cachedFilteredTrades);
-                    updateTopTradesWithFilter(cachedFilteredTrades);
-                    updateOpenPositionsWithFilter(cachedFilteredTrades);
-                    return;
-                }
-                
-                const dateRange = getDateRange();
-                
-                // Filter trades based on date range
-                const filteredTrades = filterTradesByDateRange(dateRange);
-                console.log('Filtered trades count:', filteredTrades.length, 'out of', appState.trades.length);
-                
-                // Cache the results
-                lastFilterValue = currentFilterValue;
-                cachedFilteredTrades = filteredTrades;
-                
-                // Update dashboard stats instantly
-                updateDashboardStats(filteredTrades);
-                
-                // Update charts with optimized rendering
-                updateCharts(filteredTrades);
-                
-                // Update top trades and open positions with filtered data
-                updateTopTradesWithFilter(filteredTrades);
-                updateOpenPositionsWithFilter(filteredTrades);
+                // Simply show all trades without filtering
+                updateDashboardStats(appState.trades);
+                updateCharts(appState.trades);
+                updateTopTradesWithFilter(appState.trades);
+                updateOpenPositionsWithFilter(appState.trades);
             }
 
-            // Function to filter trades by date range
-            function filterTradesByDateRange(dateRange) {
-                const trades = appState.trades || [];
-                if (!dateRange) {
-                    return trades; // Return all trades if no date range
-                }
-
-                return trades.filter(trade => {
-                    const tradeDate = new Date(trade.exit_date || trade.entry_date);
-                    return tradeDate >= dateRange.start && tradeDate <= dateRange.end;
-                });
-            }
 
             // Function to update dashboard stats
             function updateDashboardStats(filteredTrades) {
@@ -16656,39 +16478,11 @@
                 }
             }
 
-            // Function to clear cache when new data is available
-            function clearFilterCache() {
-                cachedFilteredTrades = null;
-                lastFilterValue = null;
-            }
             
-            // Initialize with default "All Time" selection
-            dateFilter.value = 'all-time';
-            lastFilterValue = 'all-time';
-            
-            // Apply initial filter to ensure dashboard shows filtered data from start
+            // Initialize dashboard with all data
             setTimeout(() => {
                 refreshDashboardData();
             }, 100);
-            
-            // Clear cache when trades data changes (for real-time updates)
-            const originalUpdateTradeDependentUI = window.updateTradeDependentUI;
-            if (originalUpdateTradeDependentUI) {
-                window.updateTradeDependentUI = function() {
-                    clearFilterCache();
-                    // Call the original function but then reapply filter if we're on dashboard
-                    const result = originalUpdateTradeDependentUI.apply(this, arguments);
-                    
-                    // If we're on the dashboard page, reapply the current filter
-                    if (document.getElementById('dashboard') && document.getElementById('dashboard').classList.contains('active')) {
-                        setTimeout(() => {
-                            refreshDashboardData();
-                        }, 100);
-                    }
-                    
-                    return result;
-                };
-            }
         });
 
         // Tab functionality
